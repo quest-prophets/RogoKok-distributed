@@ -21,12 +21,11 @@ int main(int argc, char const *argv[]) {
              fprintf(stderr, "ERROR: maximum children number is %d", MAX_CHILDREN_NUM);
              return 1;
          }
-         sum_process_num = children_num++;
+         sum_process_num = children_num + (uint8_t) 1;
     }
 
     // creating read/write channels
-
-
+    pipe_fd_t*** io_channel = create_pipes(sum_process_num);
 
     return 0;
 }
