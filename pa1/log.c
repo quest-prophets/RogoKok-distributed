@@ -12,8 +12,8 @@ FILE *pipes_log_file;
 
 void log_init()
 {
-    events_log_file = fopen(events_log, "a");
-    pipes_log_file = fopen(pipes_log, "w");
+    events_log_file = fopen(events_log, "a+");
+    pipes_log_file = fopen(pipes_log, "w+");
 }
 
 void log_printf(const char *fmt, ...)
