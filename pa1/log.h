@@ -1,5 +1,5 @@
-#ifndef __IFMO_DISTRIBUTED_CLASS_LOG__H
-#define __IFMO_DISTRIBUTED_CLASS_LOG__H
+#ifndef __IFMO_DISTRIBUTED_CLASS_PA1_LOG__H
+#define __IFMO_DISTRIBUTED_CLASS_PA1_LOG__H
 
 #include "ipc.h"
 
@@ -21,4 +21,4 @@ void log_events_close();
 
 void log_pipes_close();
 
-#endif // __IFMO_DISTRIBUTED_CLASS_LOG__H
+#endif // __IFMO_DISTRIBUTED_CLASS_PA1_LOG__H

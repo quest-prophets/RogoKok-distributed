@@ -1,7 +1,3 @@
-//
-// Created by rogo on 24.03.20.
-//
-
 #ifndef PA1_PIPES_IO_H
 #define PA1_PIPES_IO_H
 

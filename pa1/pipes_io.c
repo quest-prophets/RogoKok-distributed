@@ -1,7 +1,3 @@
-//
-// Created by rogo on 24.03.20.
-//
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <zconf.h>

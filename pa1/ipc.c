@@ -1,7 +1,3 @@
-//
-// Created by rogo on 25.03.20.
-//
-
 #include "ipc.h"
 
 int send(void * self, local_id dst, const Message * msg);
