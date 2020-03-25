@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <zconf.h>
 
 #include "util.h"
 #include "pipes_io.h"
@@ -25,7 +26,7 @@ int main(int argc, char const *argv[]) {
     }
 
     // creating read/write channels
-    pipe_fd_t*** io_channel = create_pipes(sum_process_num);
+    io_channel_t* io_channels = create_pipes(sum_process_num);
 
     return 0;
 }

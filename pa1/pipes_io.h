@@ -18,6 +18,10 @@ typedef struct {
     int write_fd;
 } __attribute__((packed)) pipe_fd_t;
 
-pipe_fd_t*** create_pipes(uint8_t process_num);
+typedef struct {
+    pipe_fd_t io_channels [MAX_PROCESSES_NUM][MAX_PROCESSES_NUM];
+} __attribute__((packed)) io_channel_t;
+
+io_channel_t* create_pipes(uint8_t process_num);
 
 #endif //PA1_IO_H
