@@ -15,6 +15,8 @@ typedef struct {
 } __attribute__((packed)) pipe_fd_t;
 
 typedef struct {
+    local_id id;
+    uint8_t children_num;
     pipe_fd_t io_channels [MAX_PROCESSES_NUM][MAX_PROCESSES_NUM];
 } __attribute__((packed)) io_channel_t;
 
