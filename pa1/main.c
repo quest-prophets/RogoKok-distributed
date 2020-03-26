@@ -28,5 +28,24 @@ int main(int argc, char const *argv[]) {
     // creating read/write channels
     io_channel_t* io_channels = create_pipes(sum_process_num);
 
+
+    // forking children
+    for (uint8_t pid = 1; pid <= children_num; pid++) {
+        int child_process = fork();
+        switch (child_process) {
+            case -1:
+                // error
+                fprintf(stderr, "ERROR: fork failed\n");
+                return 1;
+            case 0:
+                // child process
+
+                break;
+            default:
+                // parent process
+                break;
+        }
+    }
+
     return 0;
 }

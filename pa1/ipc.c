@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <zconf.h>
 
 #include "ipc.h"
 #include "pipes_io.h"
@@ -51,8 +52,8 @@ int receive(void *self, local_id from, Message *msg)
         return 2;
     }
 
-    size_t read_header = read(io_channel->io_channels[from][io_channel->id].read_fd, msg->s_header, sizeof(MessageHeader));
-    size_t read_payload = read(io_channel->io_channels[from][io_channel->id].read_fd, msg->s_payload, msg->s_header.s_payload_len);
+    ssize_t read_header = read(io_channel->io_channels[from][io_channel->id].read_fd, &msg->s_header, sizeof(MessageHeader));
+    ssize_t read_payload = read(io_channel->io_channels[from][io_channel->id].read_fd, msg->s_payload, msg->s_header.s_payload_len);
     if (read_header < sizeof(MessageHeader) || read_payload < msg->s_header.s_payload_len)
     {
         return 3;
@@ -69,7 +70,7 @@ int receive_any(void *self, Message *msg)
     {
         if (from != io_channel->id)
         {
-            int result = send(self, from, msg);
+            int result = receive(self, from, msg);
             if (result > 0)
             {
                 return result;
