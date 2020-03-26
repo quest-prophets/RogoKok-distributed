@@ -14,7 +14,7 @@ int send(void * self, local_id dst, const Message * msg)
         return 0;
     }
 
-    size_t msg_len = sizeof(MessageHeader) + &msg->s_header.s_payload_len;
+    size_t msg_len = sizeof(MessageHeader) + msg->s_header.s_payload_len;
     return write(io_channel->io_channels[io_channel->id][dst].write_fd, msg, msg_len) != msg_len;
 }
 
