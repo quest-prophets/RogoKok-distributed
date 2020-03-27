@@ -8,6 +8,8 @@
 #define MAX_CHILDREN_NUM 9
 #define MAX_PROCESSES_NUM (MAX_CHILDREN_NUM + 1)
 
+local_id process_id;
+
 typedef struct
 {
     int read_fd;
