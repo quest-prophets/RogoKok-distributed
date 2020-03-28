@@ -3,9 +3,12 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
 
 #include "common.h"
 #include "pa1.h"
+#include "pipes_io.h"
 
 FILE *events_log_file;
 FILE *pipes_log_file;
@@ -51,4 +54,26 @@ void log_pipes_close()
     assert(pipes_log_file != NULL);
 
     fclose(pipes_log_file);
+}
+
+void log_started()
+{
+    pid_t pid = getpid();
+    pid_t parent_pid = getppid();
+    log_printf(log_started_fmt, process_id, pid, parent_pid);
+}
+
+void log_received_all_started()
+{
+    log_printf(log_received_all_started_fmt, process_id);
+}
+
+void log_done()
+{
+    log_printf(log_done_fmt, process_id);
+}
+
+void log_received_all_done()
+{
+    log_printf(log_received_all_done_fmt, process_id);
 }
