@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <zconf.h>
+#include <unistd.h>
 #include <wait.h>
 
 #include "util.h"
@@ -67,3 +67,4 @@ int send_done(io_channel_t* io_channel, Message* done_message)
     }
     return 0;
 }
+

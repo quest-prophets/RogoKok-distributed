@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <zconf.h>
+#include <stdarg.h>
 
 #include "common.h"
 #include "pa1.h"
@@ -40,7 +40,7 @@ void log_pipe_open(local_id from, local_id to)
 {
     assert(pipes_log_file != NULL);
 
-    printf("Process pipe %d -> %d OPENED\n", from, to);
+    //printf("Process pipe %d -> %d OPENED\n", from, to);
     fprintf(pipes_log_file, "Process pipe %d -> %d OPENED\n", from, to);
 }
 
@@ -79,3 +79,4 @@ void log_received_all_done(io_channel_t* io_channel)
 {
     log_printf(log_received_all_done_fmt, io_channel->id);
 }
+

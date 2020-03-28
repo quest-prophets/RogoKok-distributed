@@ -15,3 +15,4 @@ static const char * const events_log = "events.log";
 static const char * const pipes_log = "pipes.log";
 
 #endif // __IFMO_DISTRIBUTED_CLASS_COMMON__H
+

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <zconf.h>
+#include <unistd.h>
 
 #include "pipes_io.h"
 #include "log.h"
@@ -34,9 +34,9 @@ io_channel_t *create_pipes(uint8_t sum_process_num)
 
 void close_unused_pipes(io_channel_t *pipes_struct)
 {
-    for (uint8_t src = 0; src < pipes_struct->children_num; src++)
+    for (uint8_t src = 0; src <= pipes_struct->children_num; src++)
     {
-        for (uint8_t dst = 0; dst < pipes_struct->children_num; dst++)
+        for (uint8_t dst = 0; dst <= pipes_struct->children_num; dst++)
         {
             if ((src != pipes_struct->id && dst != pipes_struct->id && src != dst))
             {
@@ -54,3 +54,4 @@ void close_unused_pipes(io_channel_t *pipes_struct)
         }
     }
 }
+

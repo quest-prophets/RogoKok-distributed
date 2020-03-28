@@ -113,3 +113,4 @@ int receive_any(void * self, Message * msg);
 //------------------------------------------------------------------------------
 
 #endif // __IFMO_DISTRIBUTED_CLASS_IPC__H
+

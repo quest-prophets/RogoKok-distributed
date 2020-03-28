@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <zconf.h>
 #include <wait.h>
+#include <unistd.h>
+#include <sys/types.h>
 
 #include "util.h"
 #include "pipes_io.h"
@@ -59,6 +60,7 @@ int main(int argc, char const *argv[])
             case 0:
                 // child process
                 io_channel->id = pid;
+		close_unused_pipes(io_channel);
                 loopbreak = 1;
                 break;
             default:
@@ -107,3 +109,4 @@ int main(int argc, char const *argv[])
 
     return 0;
 }
+

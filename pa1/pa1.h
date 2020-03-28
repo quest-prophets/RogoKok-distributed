@@ -26,3 +26,4 @@ static const char * const log_received_all_done_fmt =
         "Process %1d received all DONE messages\n";
 
 #endif // __IFMO_DISTRIBUTED_CLASS_PA1__H
+

@@ -23,3 +23,4 @@ void log_events_close();
 void log_pipes_close();
 
 #endif // __IFMO_DISTRIBUTED_CLASS_PA1_LOG__H
+
