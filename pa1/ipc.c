@@ -81,3 +81,11 @@ int receive_any(void *self, Message *msg)
     }
     return 0;
 }
+
+Message *create_message(uint16_t magic, int16_t type)
+{
+    Message* msg = (Message*) malloc(sizeof(Message));
+    msg->s_header.s_magic = MESSAGE_MAGIC;
+    msg->s_header.s_type = type;
+    return msg;
+}

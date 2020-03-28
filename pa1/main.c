@@ -26,7 +26,6 @@ int main(int argc, char const *argv[]) {
         sum_process_num = children_num + (uint8_t) 1;
     }
 
-
     // creating array of running processes
     pid_t processes[sum_process_num];
     // forking children
