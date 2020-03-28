@@ -8,9 +8,12 @@
 #include "pipes_io.h"
 #include "ipc.h"
 #include "pa1.h"
+#include "log.h"
 
 int main(int argc, char const *argv[])
 {
+
+    // variables
 
     uint8_t children_num;
     uint8_t sum_process_num;
@@ -60,27 +63,28 @@ int main(int argc, char const *argv[])
         }
     }
 
+    // logs init
+    log_init();
+
     // creating read/write channels
     io_channel_t *io_channels = create_pipes(sum_process_num);
     io_channels->id = process_id;
 
-    // sending STARTED message for children
+    // sending child work STARTED for other processes
     Message* started_message = create_message(MESSAGE_MAGIC, STARTED);
-    if (process_id == PARENT_ID)
+    if (process_id != PARENT_ID)
     {
-        // parent
+        // child
         sprintf(started_message->s_payload, log_started_fmt, process_id, getpid(), getppid());
         started_message->s_header.s_payload_len = (uint16_t) strlen(started_message->s_payload);
         send_multicast(io_channels, started_message);
+        log_started();
     }
 
-    // receiving messages from children
-    for (uint8_t id = 1; id <= children_num; id++)
-    {
-        Message message_from_child;
-        if (id == process_id) continue;
-        receive(io_channels, id, &message_from_child);
-    }
+    // receiving START messages from others
+    Message received_message_started;
+    receive_any(io_channels, &received_message_started);
+    log_received_all_started();
 
     // sending child work DONE for other processes
     Message* done_message = create_message(MESSAGE_MAGIC, DONE);
@@ -90,15 +94,13 @@ int main(int argc, char const *argv[])
         sprintf(started_message->s_payload, log_done_fmt, process_id);
         done_message->s_header.s_payload_len = (uint16_t) strlen(done_message->s_payload);
         send_multicast(io_channels, done_message);
+        log_done();
     }
 
-    // receiving messages from children
-    for (uint8_t id = 1; id <= children_num; id++)
-    {
-        Message message_from_child;
-        if (id == process_id) continue;
-        receive(io_channels, id, &message_from_child);
-    }
+    // receiving DONE messages from others
+    Message received_message_done;
+    receive_any(io_channels, &received_message_done);
+    log_received_all_done();
 
     // waiting for children to stop
     if (process_id == PARENT_ID)
@@ -107,6 +109,8 @@ int main(int argc, char const *argv[])
         for (size_t i = 1; i <= children_num; i++)
             waitpid(processes[i], NULL, 0);
     }
+
+    log_events_close();
 
     return 0;
 }

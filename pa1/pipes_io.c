@@ -3,6 +3,7 @@
 #include <zconf.h>
 
 #include "pipes_io.h"
+#include "log.h"
 
 io_channel_t *create_pipes(uint8_t sum_process_num)
 {
@@ -24,6 +25,7 @@ io_channel_t *create_pipes(uint8_t sum_process_num)
                 channel_fd->read_fd = pipe_fd[0];
                 channel_fd->write_fd = pipe_fd[1];
                 pipes_struct->io_channels[src][dst] = *channel_fd;
+                log_pipe_open(src,dst);
             }
         }
     }
