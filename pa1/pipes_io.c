@@ -20,6 +20,7 @@ io_channel_t *create_pipes(uint8_t sum_process_num)
                     exit(1);
                 }
                 pipe_fd_t *channel_fd = (pipe_fd_t *)calloc(1, sizeof(pipe_fd_t));
+                pipes_struct->children_num = sum_process_num - (uint8_t) 1;
                 channel_fd->read_fd = pipe_fd[0];
                 channel_fd->write_fd = pipe_fd[1];
                 pipes_struct->io_channels[src][dst] = *channel_fd;

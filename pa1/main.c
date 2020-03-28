@@ -62,6 +62,7 @@ int main(int argc, char const *argv[])
 
     // creating read/write channels
     io_channel_t *io_channels = create_pipes(sum_process_num);
+    io_channels->id = process_id;
 
     // sending STARTED message for children
     Message* started_message = create_message(MESSAGE_MAGIC, STARTED);
