@@ -40,6 +40,7 @@ void log_pipe_open(local_id from, local_id to)
 {
     assert(pipes_log_file != NULL);
 
+    printf("Process pipe %d -> %d OPENED\n", from, to);
     fprintf(pipes_log_file, "Process pipe %d -> %d OPENED\n", from, to);
 }
 
