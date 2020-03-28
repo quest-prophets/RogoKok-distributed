@@ -19,6 +19,7 @@ int send(void *self, local_id dst, const Message *msg)
     }
 
     size_t msg_len = sizeof(MessageHeader) + msg->s_header.s_payload_len;
+   // printf("Процесс %d отправил сообщение %d процессу %d \n", io_channel->id, msg->s_header.s_type,dst);
     return write(io_channel->io_channels[io_channel->id][dst].write_fd, msg, msg_len) != msg_len;
 }
 
@@ -59,7 +60,7 @@ int receive(void *self, local_id from, Message *msg)
     {
         return 3;
     }
-
+   // printf("Процесс %d получил сообщение %d от процесса %d\n", io_channel->id, msg->s_header.s_type, from);
     return 0;
 }
 

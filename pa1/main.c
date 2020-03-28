@@ -36,6 +36,12 @@ int main(int argc, char const *argv[])
         sum_process_num = children_num + (uint8_t) 1;
     }
 
+    // logs init
+    log_init();
+
+    // creating read/write channels
+    io_channel_t *io_channels = create_pipes(sum_process_num);
+
     // creating array of running processes
     pid_t processes[sum_process_num];
     // forking children
@@ -63,11 +69,6 @@ int main(int argc, char const *argv[])
         }
     }
 
-    // logs init
-    log_init();
-
-    // creating read/write channels
-    io_channel_t *io_channels = create_pipes(sum_process_num);
     io_channels->id = process_id;
 
     // sending child work STARTED for other processes
