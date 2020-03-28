@@ -83,8 +83,15 @@ int main(int argc, char const *argv[])
     }
 
     // receiving START messages from others
-    Message received_message_started;
-    receive_any(io_channels, &received_message_started);
+   // Message received_message_started;
+    //receive_any(io_channels, &received_message_started);
+    for (size_t i = 1; i <= children_num; i++) {
+        Message msg;
+        if (i == process_id) {
+            continue;
+        }
+        receive(io_channels, i, &msg);
+    }
     log_received_all_started();
 
     // sending child work DONE for other processes
@@ -99,8 +106,15 @@ int main(int argc, char const *argv[])
     }
 
     // receiving DONE messages from others
-    Message received_message_done;
-    receive_any(io_channels, &received_message_done);
+    //Message received_message_done;
+    //receive_any(io_channels, &received_message_done);
+    for (size_t i = 1; i <= children_num; i++) {
+        Message msg;
+        if (i == process_id) {
+            continue;
+        }
+        receive(io_channels, i, &msg);
+    }
     log_received_all_done();
 
     // waiting for children to stop
