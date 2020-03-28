@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "util.h"
+#include "ipc.h"
 
 uint8_t parse_children_num (const char* arg) {
     char *arg_end;
@@ -15,4 +17,12 @@ uint8_t parse_children_num (const char* arg) {
         exit(1);
     }
     return num;
+}
+
+Message* create_message_by_type(MessageType type)
+{
+    Message* msg = (Message*) malloc(sizeof(Message));
+    msg->s_header.s_magic = MESSAGE_MAGIC;
+    msg->s_header.s_type = type;
+    return msg;
 }

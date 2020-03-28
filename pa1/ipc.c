@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <zconf.h>
+#include <stdlib.h>
 
 #include "ipc.h"
 #include "pipes_io.h"
@@ -73,6 +74,7 @@ int receive_any(void *self, Message *msg)
             int result = receive(self, from, msg);
             if (result > 0)
             {
+                printf("%d\n",result);
                 return result;
             }
         }
