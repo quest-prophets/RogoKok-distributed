@@ -40,7 +40,7 @@ int main(int argc, char const *argv[])
     log_init();
 
     // creating read/write channels
-    io_channel_t *io_channels = create_pipes(sum_process_num);
+    io_channel_t *io_channel = create_pipes(sum_process_num);
 
     // creating array of running processes
     pid_t processes[sum_process_num];
@@ -58,74 +58,52 @@ int main(int argc, char const *argv[])
                 return 1;
             case 0:
                 // child process
-                process_id = pid;
+                io_channel->id = pid;
                 loopbreak = 1;
                 break;
             default:
                 // parent process
-                process_id = PARENT_ID;
+                io_channel->id = PARENT_ID;
                 processes[pid] = child_process;
                 break;
         }
     }
 
-    io_channels->id = process_id;
+    close_unused_pipes(io_channel);
 
-    // sending child work STARTED for other processes
     Message* started_message = create_message(MESSAGE_MAGIC, STARTED);
-    if (process_id != PARENT_ID)
-    {
-        // child
-        sprintf(started_message->s_payload, log_started_fmt, process_id, getpid(), getppid());
-        started_message->s_header.s_payload_len = (uint16_t) strlen(started_message->s_payload);
-        send_multicast(io_channels, started_message);
-        log_started();
-    }
-
-    // receiving START messages from others
-   // Message received_message_started;
-    //receive_any(io_channels, &received_message_started);
-    for (size_t i = 1; i <= children_num; i++) {
-        Message msg;
-        if (i == process_id) {
-            continue;
-        }
-        receive(io_channels, i, &msg);
-    }
-    log_received_all_started();
-
-    // sending child work DONE for other processes
     Message* done_message = create_message(MESSAGE_MAGIC, DONE);
-    if (process_id != PARENT_ID)
-    {
-        // child
-        sprintf(started_message->s_payload, log_done_fmt, process_id);
-        done_message->s_header.s_payload_len = (uint16_t) strlen(done_message->s_payload);
-        send_multicast(io_channels, done_message);
-        log_done();
-    }
 
-    // receiving DONE messages from others
-    //Message received_message_done;
-    //receive_any(io_channels, &received_message_done);
-    for (size_t i = 1; i <= children_num; i++) {
-        Message msg;
-        if (i == process_id) {
-            continue;
-        }
-        receive(io_channels, i, &msg);
-    }
-    log_received_all_done();
-
-    // waiting for children to stop
-    if (process_id == PARENT_ID)
+    if (io_channel->id == PARENT_ID)
     {
         // parent
-        for (size_t i = 1; i <= children_num; i++)
-            waitpid(processes[i], NULL, 0);
+        receive_from_all_processes(io_channel); // receiving all STARTED
+        log_received_all_started(io_channel);
+        receive_from_all_processes(io_channel); // receiving all DONE
+        log_received_all_done(io_channel);
+        // waiting for processes to finish
+        for (uint8_t pid = 1; pid <= io_channel->children_num; pid++)
+            if (!waitpid(processes[pid], NULL, 0))
+            {
+                return 1;
+            }
+    }
+    else
+    {
+        // child
+        send_started(io_channel,started_message); // send to all - STARTED
+        log_started(io_channel);
+        receive_from_all_processes(io_channel); // receiving all STARTED
+        log_received_all_started(io_channel);
+        send_done(io_channel, done_message);   // send to all - DONE
+        log_done(io_channel);
+        receive_from_all_processes(io_channel); // receiving all DONE
+        log_received_all_done(io_channel);
+
     }
 
     log_events_close();
+    log_pipes_close();
 
     return 0;
 }

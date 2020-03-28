@@ -38,16 +38,16 @@ void close_unused_pipes(io_channel_t *pipes_struct)
     {
         for (uint8_t dst = 0; dst < pipes_struct->children_num; dst++)
         {
-            if ((src != process_id && dst != process_id && src != dst))
+            if ((src != pipes_struct->id && dst != pipes_struct->id && src != dst))
             {
                 close(pipes_struct->io_channels[src][dst].read_fd);
                 close(pipes_struct->io_channels[src][dst].write_fd);
             }
-            if (src != process_id && dst == process_id)
+            if (src != pipes_struct->id && dst == pipes_struct->id)
             {
                 close(pipes_struct->io_channels[src][dst].write_fd);
             }
-            if (src == process_id && dst != process_id)
+            if (src == pipes_struct->id && dst != pipes_struct->id)
             {
                 close(pipes_struct->io_channels[src][dst].read_fd);
             }

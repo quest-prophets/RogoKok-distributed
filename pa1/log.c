@@ -58,24 +58,24 @@ void log_pipes_close()
     fclose(pipes_log_file);
 }
 
-void log_started()
+void log_started(io_channel_t* io_channel)
 {
     pid_t pid = getpid();
     pid_t parent_pid = getppid();
-    log_printf(log_started_fmt, process_id, pid, parent_pid);
+    log_printf(log_started_fmt, io_channel->id, pid, parent_pid);
 }
 
-void log_received_all_started()
+void log_received_all_started(io_channel_t* io_channel)
 {
-    log_printf(log_received_all_started_fmt, process_id);
+    log_printf(log_received_all_started_fmt, io_channel->id);
 }
 
-void log_done()
+void log_done(io_channel_t* io_channel)
 {
-    log_printf(log_done_fmt, process_id);
+    log_printf(log_done_fmt, io_channel->id);
 }
 
-void log_received_all_done()
+void log_received_all_done(io_channel_t* io_channel)
 {
-    log_printf(log_received_all_done_fmt, process_id);
+    log_printf(log_received_all_done_fmt, io_channel->id);
 }

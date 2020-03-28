@@ -2,16 +2,17 @@
 #define __IFMO_DISTRIBUTED_CLASS_PA1_LOG__H
 
 #include "ipc.h"
+#include "pipes_io.h"
 
 void log_init();
 
-void log_started();
+void log_started(io_channel_t* io_channel);
 
-void log_received_all_started();
+void log_received_all_started(io_channel_t* io_channel);
 
-void log_done();
+void log_done(io_channel_t* io_channel);
 
-void log_received_all_done();
+void log_received_all_done(io_channel_t* io_channel);
 
 void log_printf(const char *fmt, ...);
 

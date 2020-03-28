@@ -8,8 +8,6 @@
 #define MAX_CHILDREN_NUM 9
 #define MAX_PROCESSES_NUM (MAX_CHILDREN_NUM + 1)
 
-local_id process_id;
-
 typedef struct
 {
     int read_fd;
@@ -25,6 +23,6 @@ typedef struct
 
 io_channel_t *create_pipes(uint8_t process_num);
 
-void close_pipes(io_channel_t *pipes_struct);
+void close_unused_pipes(io_channel_t *pipes_struct);
 
 #endif //PA1_IO_H

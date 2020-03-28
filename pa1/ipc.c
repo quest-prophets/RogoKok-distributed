@@ -5,6 +5,7 @@
 #include "ipc.h"
 #include "pipes_io.h"
 
+
 int send(void *self, local_id dst, const Message *msg)
 {
     io_channel_t *io_channel = (io_channel_t *)self;
