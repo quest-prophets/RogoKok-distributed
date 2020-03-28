@@ -55,7 +55,7 @@ int main(int argc, char const *argv[]) {
     io_channel_t *io_channels = create_pipes(sum_process_num);
 
     // sending messages
-    Message* started = create_message_by_type(STARTED);
+    Message* started = create_message(MESSAGE_MAGIC, STARTED);
     if (process_id == PARENT_ID) {
         // parent
     }

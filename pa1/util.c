@@ -19,10 +19,11 @@ uint8_t parse_children_num (const char* arg) {
     return num;
 }
 
-Message* create_message_by_type(MessageType type)
+
+Message *create_message(uint16_t magic, int16_t type)
 {
     Message* msg = (Message*) malloc(sizeof(Message));
-    msg->s_header.s_magic = MESSAGE_MAGIC;
+    msg->s_header.s_magic = magic;
     msg->s_header.s_type = type;
     return msg;
 }
