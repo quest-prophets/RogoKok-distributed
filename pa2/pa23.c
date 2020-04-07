@@ -11,10 +11,24 @@
 #include "log.h"
 #include "banking.h"
 
-void transfer(void * parent_data, local_id src, local_id dst,
+void transfer(void *parent_data, local_id src, local_id dst,
               balance_t amount)
 {
-    // student, please implement me - NO!
+    io_channel_t *io_channel = (io_channel_t *)self;
+    Message msg = {
+        .s_header =
+            {
+                .s_magic = MESSAGE_MAGIC,
+                .s_type = TRANSFER,
+                .s_payload_len = sizeof(TransferOrder),
+                .s_local_time = get_physical_time()}};
+    *((TransferOrder *)msg->s_payload) =
+        (TransferOrder){
+            .s_src = src, .s_dst = dst, .s_amount = amount};
+
+    send(io_channel, src, &msg);
+    receive(io_channel, dst, &msg);
+    assert(msg->s_header.s_type == ACK);
 }
 
 int main(int argc, char const *argv[])
@@ -24,7 +38,7 @@ int main(int argc, char const *argv[])
 
     uint8_t children_num;
     uint8_t sum_process_num;
-    balance_t branch_balances[argc-2];
+    balance_t branch_balances[argc - 2];
 
     // input validation
 
@@ -46,10 +60,11 @@ int main(int argc, char const *argv[])
             fprintf(stderr, "ERROR: expected %d balances after -p %s", children_num, argv[2]);
             return 1;
         }
-        for (uint8_t i = 0; i < children_num; i++) {
-            branch_balances[i+1] = parse_arg(argv[3+i]);
+        for (uint8_t i = 0; i < children_num; i++)
+        {
+            branch_balances[i + 1] = parse_arg(argv[3 + i]);
         }
-        sum_process_num = children_num + (uint8_t) 1;
+        sum_process_num = children_num + (uint8_t)1;
     }
 
     // logs init
@@ -68,28 +83,28 @@ int main(int argc, char const *argv[])
         int child_process = fork();
         switch (child_process)
         {
-            case -1:
-                // error
-                fprintf(stderr, "ERROR: fork failed\n");
-                return 1;
-            case 0:
-                // child process
-                io_channel->id = pid;
-                close_unused_pipes(io_channel);
-                loopbreak = 1;
-                break;
-            default:
-                // parent process
-                io_channel->id = PARENT_ID;
-                processes[pid] = child_process;
-                break;
+        case -1:
+            // error
+            fprintf(stderr, "ERROR: fork failed\n");
+            return 1;
+        case 0:
+            // child process
+            io_channel->id = pid;
+            close_unused_pipes(io_channel);
+            loopbreak = 1;
+            break;
+        default:
+            // parent process
+            io_channel->id = PARENT_ID;
+            processes[pid] = child_process;
+            break;
         }
     }
 
     close_unused_pipes(io_channel);
 
-    Message* started_message = create_message(MESSAGE_MAGIC, STARTED);
-    Message* done_message = create_message(MESSAGE_MAGIC, DONE);
+    Message *started_message = create_message(MESSAGE_MAGIC, STARTED);
+    Message *done_message = create_message(MESSAGE_MAGIC, DONE);
 
     if (io_channel->id == PARENT_ID)
     {
@@ -108,21 +123,18 @@ int main(int argc, char const *argv[])
     else
     {
         // child
-        send_started(io_channel,started_message); // send to all - STARTED
+        send_started(io_channel, started_message); // send to all - STARTED
         log_started(io_channel);
         receive_from_all_processes(io_channel); // receiving all STARTED
         log_received_all_started(io_channel);
-        send_done(io_channel, done_message);   // send to all - DONE
+        send_done(io_channel, done_message); // send to all - DONE
         log_done(io_channel);
         receive_from_all_processes(io_channel); // receiving all DONE
         log_received_all_done(io_channel);
-
     }
 
     log_events_close();
     log_pipes_close();
 
     return 0;
-
 }
-
