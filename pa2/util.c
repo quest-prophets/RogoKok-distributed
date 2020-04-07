@@ -7,9 +7,9 @@
 #include "util.h"
 #include "ipc.h"
 #include "pipes_io.h"
-#include "pa1.h"
+#include "pa2345.h"
 
-uint8_t parse_children_num (const char* arg) {
+uint8_t parse_arg (const char* arg) {
     char *arg_end;
     uint8_t num;
     if (arg[0] == '-') {
