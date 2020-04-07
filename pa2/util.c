@@ -54,26 +54,3 @@ int receive_from_all_processes(io_channel_t* io_channel)
     }
     return 0;
 }
-
-int send_started(io_channel_t* io_channel, Message* started_message)
-{
-    sprintf(started_message->s_payload, log_started_fmt, io_channel->id, getpid(), getppid());
-    started_message->s_header.s_payload_len = (uint16_t) strlen(started_message->s_payload);
-    if (!send_multicast(io_channel, started_message))
-    {
-        return 1;
-    }
-    return 0;
-}
-
-int send_done(io_channel_t* io_channel, Message* done_message)
-{
-    sprintf(done_message->s_payload, log_done_fmt, io_channel->id);
-    done_message->s_header.s_payload_len = (uint16_t) strlen(done_message->s_payload);
-    if (!send_multicast(io_channel, done_message))
-    {
-        return 1;
-    }
-    return 0;
-}
-

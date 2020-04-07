@@ -4,8 +4,11 @@
 #include <wait.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <assert.h>
 
 #include "util.h"
+#include "child_functions.h"
+#include "parent_functions.h"
 #include "pipes_io.h"
 #include "ipc.h"
 #include "log.h"
@@ -33,6 +36,7 @@ int main(int argc, char const *argv[])
     uint8_t children_num;
     uint8_t sum_process_num;
     balance_t branch_balances[argc - 2];
+    AllHistory banking_history;
 
     // input validation
 
@@ -99,12 +103,15 @@ int main(int argc, char const *argv[])
 
     Message *started_message = create_message(MESSAGE_MAGIC, STARTED);
     Message *done_message = create_message(MESSAGE_MAGIC, DONE);
+    Message *stop_message = create_timed_message(MESSAGE_MAGIC, STOP, 0, get_physical_time());
 
     if (io_channel->id == PARENT_ID)
     {
         // parent
         receive_from_all_processes(io_channel); // receiving all STARTED
         log_received_all_started(io_channel);
+        bank_robbery(io_channel,children_num);  // bank robbery
+        send_stop(io_channel, stop_message);    // sending STOP to all
         receive_from_all_processes(io_channel); // receiving all DONE
         log_received_all_done(io_channel);
         // waiting for processes to finish
@@ -117,11 +124,11 @@ int main(int argc, char const *argv[])
     else
     {
         // child
-        send_started(io_channel, started_message); // send to all - STARTED
+        send_started(io_channel, started_message, &banking_history); // send to all - STARTED
         log_started(io_channel);
         receive_from_all_processes(io_channel); // receiving all STARTED
         log_received_all_started(io_channel);
-        send_done(io_channel, done_message); // send to all - DONE
+        send_done(io_channel, done_message, &banking_history); // send to all - DONE
         log_done(io_channel);
         receive_from_all_processes(io_channel); // receiving all DONE
         log_received_all_done(io_channel);
