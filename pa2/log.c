@@ -80,3 +80,15 @@ void log_received_all_done(io_channel_t* io_channel)
     log_printf(log_received_all_done_fmt, io_channel->id);
 }
 
+void log_transfer_in(TransferOrder* transfer_order)
+{
+    log_printf(log_transfer_in_fmt, get_physical_time(), transfer_order->s_dst,
+            transfer_order->s_amount, transfer_order->s_src);
+}
+
+void log_transfer_out(TransferOrder* transfer_order)
+{
+    log_printf(log_transfer_out_fmt, get_physical_time(), transfer_order->s_src,
+               transfer_order->s_amount, transfer_order->s_dst);
+}
+

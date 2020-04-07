@@ -22,5 +22,9 @@ void log_events_close();
 
 void log_pipes_close();
 
+void log_transfer_in(TransferOrder* transfer_order);
+
+void log_transfer_out(TransferOrder* transfer_order);
+
 #endif // __IFMO_DISTRIBUTED_CLASS_PA1_LOG__H
 
