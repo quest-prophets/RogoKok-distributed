@@ -120,11 +120,11 @@ int main(int argc, char const *argv[])
     else
     {
         // child
-        send_started(io_channel, started_message, &banking_history); // send to all - STARTED
+        send_started(io_channel, started_message); // send to all - STARTED
         log_started(io_channel);
         receive_from_all_processes(io_channel); // receiving all STARTED
         log_received_all_started(io_channel);
-        send_done(io_channel, done_message, &banking_history); // send to all - DONE
+        send_done(io_channel, done_message); // send to all - DONE
         log_done(io_channel);
         receive_from_all_processes(io_channel); // receiving all DONE
         log_received_all_done(io_channel);
