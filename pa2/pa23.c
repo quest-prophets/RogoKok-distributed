@@ -15,19 +15,13 @@ void transfer(void *parent_data, local_id src, local_id dst,
               balance_t amount)
 {
     io_channel_t *io_channel = (io_channel_t *)parent_data;
-    Message msg = {
-        .s_header =
-            {
-                .s_magic = MESSAGE_MAGIC,
-                .s_type = TRANSFER,
-                .s_payload_len = sizeof(TransferOrder),
-                .s_local_time = get_physical_time()}};
+    Message *msg = create_timed_message(MESSAGE_MAGIC, TRANSFER, sizeof(TransferOrder), get_physical_time());
     *((TransferOrder *)msg->s_payload) =
         (TransferOrder){
             .s_src = src, .s_dst = dst, .s_amount = amount};
 
-    send(io_channel, src, &msg);
-    receive(io_channel, dst, &msg);
+    send(io_channel, src, msg);
+    receive(io_channel, dst, msg);
     assert(msg->s_header.s_type == ACK);
 }
 

@@ -33,6 +33,15 @@ Message *create_message(uint16_t magic, int16_t type)
     return msg;
 }
 
+Message *create_timed_message(uint16_t magic, int16_t type, uint16_t payload_len, timestamp_t local_time)
+{
+    Message* msg = create_message(magic, type);
+    msg->s_header.s_payload_len = payload_len;
+    msg->s_header.s_local_time = local_time;
+    return msg;
+}
+
+
 int receive_from_all_processes(io_channel_t* io_channel)
 {
     for (uint8_t pid = 1; pid <= io_channel->children_num; pid++) {
