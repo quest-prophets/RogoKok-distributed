@@ -14,7 +14,7 @@
 void transfer(void *parent_data, local_id src, local_id dst,
               balance_t amount)
 {
-    io_channel_t *io_channel = (io_channel_t *)self;
+    io_channel_t *io_channel = (io_channel_t *)parent_data;
     Message msg = {
         .s_header =
             {
