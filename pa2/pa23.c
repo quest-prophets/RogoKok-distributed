@@ -110,7 +110,7 @@ int main(int argc, char const *argv[])
         // parent
         receive_from_all_processes(io_channel); // receiving all STARTED
         log_received_all_started(io_channel);
-        bank_robbery(io_channel,children_num);  // bank robbery
+        bank_robbery(io_channel, children_num);  // bank robbery
         send_stop(io_channel, stop_message);    // sending STOP to all
         receive_from_all_processes(io_channel); // receiving all DONE
         log_received_all_done(io_channel);
@@ -120,14 +120,19 @@ int main(int argc, char const *argv[])
     else
     {
         // child
-        send_started(io_channel, started_message); // send to all - STARTED
+        balance_init(io_channel, branch_balances[io_channel->id]);  // initial branch balances info
+        send_started(io_channel, started_message);                  // send to all - STARTED
         log_started(io_channel);
-        receive_from_all_processes(io_channel); // receiving all STARTED
+        receive_from_all_processes(io_channel);                     // receiving all STARTED
         log_received_all_started(io_channel);
-        send_done(io_channel, done_message); // send to all - DONE
+        // loop for TRANSFER and STOP waiting and handing
+        handle_stop_and_transfer(io_channel, branch_balances[io_channel->id]);
+        send_done(io_channel, done_message);                        // send to all - DONE
         log_done(io_channel);
-        receive_from_all_processes(io_channel); // receiving all DONE
+        receive_from_all_processes(io_channel);                     // receiving all DONE
         log_received_all_done(io_channel);
+        // sending history to parent
+        send_history(io_channel);
     }
 
     log_events_close();
