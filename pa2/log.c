@@ -62,22 +62,28 @@ void log_started(io_channel_t* io_channel)
 {
     pid_t pid = getpid();
     pid_t parent_pid = getppid();
-    log_printf(log_started_fmt, io_channel->id, pid, parent_pid);
+    log_printf(log_started_fmt, 
+                get_physical_time(), 
+                io_channel->id, 
+                pid, 
+                parent_pid, 
+                io_channel->balance_history.s_history[io_channel->balance_history.s_history_len - 1].s_balance);
 }
 
 void log_received_all_started(io_channel_t* io_channel)
 {
-    log_printf(log_received_all_started_fmt, io_channel->id);
+    log_printf(log_received_all_started_fmt, get_physical_time(), io_channel->id);
 }
 
 void log_done(io_channel_t* io_channel)
 {
-    log_printf(log_done_fmt, io_channel->id);
+    log_printf(log_done_fmt, get_physical_time(), io_channel->id, 
+                io_channel->balance_history.s_history[io_channel->balance_history.s_history_len - 1].s_balance);
 }
 
 void log_received_all_done(io_channel_t* io_channel)
 {
-    log_printf(log_received_all_done_fmt, io_channel->id);
+    log_printf(log_received_all_done_fmt, get_physical_time(), io_channel->id);
 }
 
 void log_transfer_in(TransferOrder* transfer_order)
