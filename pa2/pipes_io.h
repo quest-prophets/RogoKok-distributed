@@ -27,5 +27,7 @@ io_channel_t *create_pipes(uint8_t process_num);
 
 void close_unused_pipes(io_channel_t *pipes_struct);
 
+void activate_nonblock(io_channel_t *io_channel);
+
 #endif //PA1_IO_H
 

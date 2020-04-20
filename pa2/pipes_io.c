@@ -55,3 +55,23 @@ void close_unused_pipes(io_channel_t *pipes_struct)
     }
 }
 
+void activate_nonblock(io_channel_t *io_channel)
+{
+    for (local_id from = 0; from <= io_channel->children_num; ++from)
+    {
+        for (local_id dst = 0; dst <= io_channel->children_num; ++dst)
+        {
+            pipe_fd_t channel_fd = io_channel->io_channels[from][dst];
+            if (channel_fd.read_fd > 0)
+            {
+                unsigned int flags = fcntl(channel_fd.read_fd, F_GETFL, 0);
+                fcntl(channel_fd.read_fd, F_SETFL, flags | O_NONBLOCK);
+            }
+            if (channel_fd.write_fd > 0)
+            {
+                unsigned int flags = fcntl(channel_fd.write_fd, F_GETFL, 0);
+                fcntl(channel_fd.write_fd, F_SETFL, flags | O_NONBLOCK);
+            }
+        }
+    }
+}

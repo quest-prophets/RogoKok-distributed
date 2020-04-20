@@ -70,6 +70,7 @@ int main(int argc, char const *argv[])
 
     // creating read/write channels
     io_channel_t *io_channel = create_pipes(sum_process_num);
+    activate_nonblock(io_channel);
 
     // creating array of running processes
     pid_t processes[sum_process_num];
