@@ -20,6 +20,7 @@ int send(void *self, local_id dst, const Message *msg)
 
     size_t msg_len = sizeof(MessageHeader) + msg->s_header.s_payload_len;
     //  printf("Процесс %d отправил сообщение %d процессу %d \n", io_channel->id, msg->s_header.s_type,dst);
+	//printf("SEND!!!! MSG IS: %s; SEND!!! TYPE IS: %d\n", msg->s_payload, msg->s_header.s_type);
     return write(io_channel->io_channels[io_channel->id][dst].write_fd, msg, msg_len) != msg_len;
 }
 
@@ -52,7 +53,7 @@ int receive(void *self, local_id from, Message *msg)
 
     while (1)
     {
-        int read_flag = read(io_channel->io_channels[from][io_channel->id].read_fd, &msg->s_header, sizeof(MessageHeader));
+        ssize_t read_flag = read(io_channel->io_channels[from][io_channel->id].read_fd, &msg->s_header, sizeof(MessageHeader));
         if (read_flag == -1 || read_flag == 0)
         {
             continue;
@@ -64,6 +65,7 @@ int receive(void *self, local_id from, Message *msg)
                 read_flag = read(io_channel->io_channels[from][io_channel->id].read_fd, &msg->s_payload, msg->s_header.s_payload_len);
             } while (read_flag == -1 || read_flag == 0);
         }
+	//printf("MSG IS: %s; TYPE IS: %d\n", msg->s_payload, msg->s_header.s_type);
         return 0;
     }
 }
@@ -71,13 +73,28 @@ int receive(void *self, local_id from, Message *msg)
 int receive_any(void *self, Message *msg)
 {
     io_channel_t *io_channel = (io_channel_t *)self;
+    ssize_t bytes_read;
 
-    for (local_id from = 0; from <= io_channel->children_num; from++)
-    {
-        if (from != io_channel->id && receive(self, from, msg) == 0)
+    while(1) 
+	{
+        for (local_id src = 0; src < io_channel->children_num + 1; src++)
         {
+            if (src == io_channel->id) continue;
+
+            bytes_read = read(io_channel->io_channels[src][io_channel->id].read_fd, &msg->s_header, sizeof(MessageHeader));
+
+            if (bytes_read == -1) continue;
+
+            if (msg->s_header.s_payload_len > 0)
+            {
+                do
+                {
+                bytes_read =read(io_channel->io_channels[src][io_channel->id].read_fd, &msg->s_payload, msg->s_header.s_payload_len);
+                }
+                while (bytes_read == -1);
+            }
             return 0;
         }
     }
-    return -1;
 }
+

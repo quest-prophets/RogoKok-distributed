@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "child_functions.h"
 #include "pipes_io.h"
@@ -22,10 +23,10 @@ void balance_init(io_channel_t *io_channel, balance_t balance)
 }
 
 void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
-    Message msg;
+    Message *msg = (Message*) malloc(sizeof(Message));
     int loopbreak = 0;
     while (!loopbreak) {
-        if (receive_any(io_channel, &msg) == 0) {
+        if (receive_any(io_channel, msg) == 0) {
             timestamp_t timestamp = get_physical_time();
             for (timestamp_t t = io_channel->balance_history.s_history_len; t < timestamp; t++) {
                 io_channel->balance_history.s_history[t] = (BalanceState) {
@@ -35,7 +36,7 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
                 io_channel->balance_history.s_history_len++;
             }
 
-            switch (msg.s_header.s_type) {
+            switch (msg->s_header.s_type) {
                 case STOP: {
                     io_channel->balance_history.s_history[timestamp] = (BalanceState) {
                             .s_balance = balance,
@@ -45,22 +46,22 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
                     loopbreak = 1;
                 }
                 case TRANSFER: {
-                    TransferOrder *transfer = (TransferOrder *) msg.s_payload;
+                    TransferOrder *transfer_order = (TransferOrder *) msg->s_payload;
+                    //printf("id - %d, src - %d, dst - %d\n", io_channel->id, transfer_order->s_src, transfer_order->s_dst);
+                    if (transfer_order->s_dst == io_channel->id) {
+                        balance += transfer_order->s_amount;
 
-                    if (transfer->s_dst == io_channel->id) {
-                        balance += transfer->s_amount;
+                        log_transfer_in(transfer_order);
 
-                        log_transfer_in(transfer);
+                        msg->s_header.s_type = ACK;
+                        msg->s_header.s_payload_len = 0;
+                        send(io_channel, PARENT_ID, msg);
+                    } else if (transfer_order->s_src == io_channel->id) {
+                        balance -= transfer_order->s_amount;
 
-                        msg.s_header.s_type = ACK;
-                        msg.s_header.s_payload_len = 0;
-                        send(io_channel, PARENT_ID, &msg);
-                    } else if (transfer->s_src == io_channel->id) {
-                        balance -= transfer->s_amount;
+                        log_transfer_out(transfer_order);
 
-                        log_transfer_out(transfer);
-
-                        send(io_channel, transfer->s_dst, &msg);
+                        send(io_channel, transfer_order->s_dst, msg);
                     }
                 }
                 default:
@@ -106,3 +107,4 @@ int send_done(io_channel_t *io_channel, Message *done_message)
     }
     return 0;
 }
+

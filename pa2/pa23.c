@@ -22,7 +22,6 @@ void transfer(void *parent_data, local_id src, local_id dst,
     *((TransferOrder *)msg->s_payload) =
         (TransferOrder){
             .s_src = src, .s_dst = dst, .s_amount = amount};
-
     send(io_channel, src, msg);
     receive(io_channel, dst, msg);
     assert(msg->s_header.s_type == ACK);

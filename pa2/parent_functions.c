@@ -23,9 +23,7 @@ int receive_history_from_all(io_channel_t* io_channel, AllHistory* banking_histo
     for (uint8_t pid = 1; pid <= io_channel->children_num; pid++) {
         Message message;
         if (pid != io_channel->id) {
-            if (!receive(io_channel, pid, &message)){
-                return 1;
-            }
+            receive(io_channel, pid, &message);
             if (message.s_header.s_type != BALANCE_HISTORY)
             {
                 return 3;

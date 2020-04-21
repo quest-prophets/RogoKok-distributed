@@ -47,9 +47,7 @@ int receive_from_all_processes(io_channel_t* io_channel)
     for (uint8_t pid = 1; pid <= io_channel->children_num; pid++) {
         Message message;
         if (pid != io_channel->id) {
-            if (!receive(io_channel, pid, &message)){
-                return 1;
-            }
+            receive(io_channel, pid, &message);
         }
     }
     return 0;
