@@ -73,25 +73,25 @@ int receive(void *self, local_id from, Message *msg)
 int receive_any(void *self, Message *msg)
 {
     io_channel_t *io_channel = (io_channel_t *)self;
-    ssize_t bytes_read;
+    ssize_t read_flag;
 
     while(1) 
 	{
-        for (local_id src = 0; src < io_channel->children_num + 1; src++)
+        for (local_id from = 0; from <= io_channel->children_num; from++)
         {
-            if (src == io_channel->id) continue;
+            if (from == io_channel->id) continue;
 
-            bytes_read = read(io_channel->io_channels[src][io_channel->id].read_fd, &msg->s_header, sizeof(MessageHeader));
+            read_flag = read(io_channel->io_channels[from][io_channel->id].read_fd, &msg->s_header, sizeof(MessageHeader));
 
-            if (bytes_read == -1) continue;
+            if (read_flag == -1) continue;
 
             if (msg->s_header.s_payload_len > 0)
             {
                 do
                 {
-                bytes_read =read(io_channel->io_channels[src][io_channel->id].read_fd, &msg->s_payload, msg->s_header.s_payload_len);
+                read_flag = read(io_channel->io_channels[from][io_channel->id].read_fd, &msg->s_payload, msg->s_header.s_payload_len);
                 }
-                while (bytes_read == -1);
+                while (read_flag == -1);
             }
             return 0;
         }
