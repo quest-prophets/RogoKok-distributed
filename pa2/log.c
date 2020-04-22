@@ -30,7 +30,7 @@ void log_printf(const char *fmt, ...)
     va_copy(va_fargs, va_args);
 
     vprintf(fmt, va_args);
-    vfprintf(events_log_file, fmt, va_args);
+    vfprintf(events_log_file, fmt, va_fargs);
 
     va_end(va_args);
     va_end(va_fargs);

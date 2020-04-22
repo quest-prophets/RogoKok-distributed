@@ -12,8 +12,7 @@ Message *create_message(uint16_t magic, int16_t type);
 
 Message *create_timed_message(uint16_t magic, int16_t type, uint16_t payload_len, timestamp_t local_time);
 
-int receive_from_all_processes(io_channel_t* io_channel);
-
+int receive_from_all_processes(io_channel_t* io_channel, int16_t type);
 
 #endif //PA1_UTIL_H
 

@@ -59,10 +59,11 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
                     } else if (transfer_order->s_src == io_channel->id) {
                         balance -= transfer_order->s_amount;
 
-                        log_transfer_out(transfer_order);
+                        log_transfer_out(transfer_order);			
 
                         send(io_channel, transfer_order->s_dst, msg);
                     }
+		
                 }
                 default:
                     break;
@@ -73,14 +74,15 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
 
 int send_history(io_channel_t *io_channel)
 {
-    Message history_message;
-    history_message.s_header.s_type = BALANCE_HISTORY;
-    history_message.s_header.s_payload_len = sizeof(BalanceHistory);
-    *((BalanceHistory *)history_message.s_payload) = io_channel->balance_history;
-    if (!send(io_channel, PARENT_ID, &history_message))
+    Message *history_message = (Message*) malloc(sizeof(Message));
+    history_message->s_header.s_type = BALANCE_HISTORY;
+    history_message->s_header.s_payload_len = io_channel->balance_history.s_history_len * sizeof(BalanceHistory);
+    *((BalanceHistory *)history_message->s_payload) = io_channel->balance_history;
+    if (!send(io_channel, PARENT_ID, history_message))
     {
         return 1;
     }
+    puts ("HIST_SENT");
     return 0;
 }
 

@@ -26,6 +26,7 @@ int receive_history_from_all(io_channel_t* io_channel, AllHistory* banking_histo
             receive(io_channel, pid, &message);
             if (message.s_header.s_type != BALANCE_HISTORY)
             {
+		        puts("no BALANCE_HISTORY received\n");
                 return 3;
             }
             BalanceHistory* balance_history = (BalanceHistory*) message.s_payload;

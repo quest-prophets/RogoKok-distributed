@@ -42,13 +42,15 @@ Message *create_timed_message(uint16_t magic, int16_t type, uint16_t payload_len
 }
 
 
-int receive_from_all_processes(io_channel_t* io_channel)
+int receive_from_all_processes(io_channel_t* io_channel, int16_t type)
 {
     for (uint8_t pid = 1; pid <= io_channel->children_num; pid++) {
         Message message;
         if (pid != io_channel->id) {
             receive(io_channel, pid, &message);
+		if (message.s_header.s_type!=type) printf("BAN - %d received type %d, from %d\n", io_channel->id, message.s_header.s_type, pid);
         }
     }
+
     return 0;
 }

@@ -35,7 +35,7 @@ int main(int argc, char const *argv[])
     uint8_t children_num;
     uint8_t sum_process_num;
     balance_t branch_balances[argc - 2];
-    AllHistory banking_history;
+    AllHistory banking_history = {.s_history_len = 0};
 
     // input validation
 
@@ -108,11 +108,11 @@ int main(int argc, char const *argv[])
     if (io_channel->id == PARENT_ID)
     {
         // parent
-        receive_from_all_processes(io_channel); // receiving all STARTED
+        receive_from_all_processes(io_channel, 0); // receiving all STARTED
         log_received_all_started(io_channel);
         bank_robbery(io_channel, children_num);  // bank robbery
         send_stop(io_channel, stop_message);    // sending STOP to all
-        receive_from_all_processes(io_channel); // receiving all DONE
+        receive_from_all_processes(io_channel, 1); // receiving all DONE
         log_received_all_done(io_channel);
         receive_history_from_all(io_channel,&banking_history);
         print_history(&banking_history);        // printing all history
@@ -123,13 +123,13 @@ int main(int argc, char const *argv[])
         balance_init(io_channel, branch_balances[io_channel->id]);  // initial branch balances info
         send_started(io_channel, started_message);                  // send to all - STARTED
         log_started(io_channel);
-        receive_from_all_processes(io_channel);                     // receiving all STARTED
+        receive_from_all_processes(io_channel, 0);                     // receiving all STARTED
         log_received_all_started(io_channel);
         // loop for TRANSFER and STOP waiting and handing
         handle_stop_and_transfer(io_channel, branch_balances[io_channel->id]);
         send_done(io_channel, done_message);                        // send to all - DONE
         log_done(io_channel);
-        receive_from_all_processes(io_channel);                     // receiving all DONE
+        receive_from_all_processes(io_channel, 1);                     // receiving all DONE
         log_received_all_done(io_channel);
         // sending history to parent
         send_history(io_channel);
@@ -138,5 +138,7 @@ int main(int argc, char const *argv[])
     log_events_close();
     log_pipes_close();
 
+	printf("id %d finished his work\n", io_channel->id);
+	
     return 0;
 }

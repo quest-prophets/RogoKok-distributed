@@ -20,7 +20,7 @@ int send(void *self, local_id dst, const Message *msg)
 
     size_t msg_len = sizeof(MessageHeader) + msg->s_header.s_payload_len;
     //  printf("Процесс %d отправил сообщение %d процессу %d \n", io_channel->id, msg->s_header.s_type,dst);
-	//printf("SEND!!!! MSG IS: %s; SEND!!! TYPE IS: %d\n", msg->s_payload, msg->s_header.s_type);
+	printf("process %d send msg to %d, type is %d\n", io_channel->id, dst, msg->s_header.s_type);
     return write(io_channel->io_channels[io_channel->id][dst].write_fd, msg, msg_len) != msg_len;
 }
 
@@ -66,6 +66,7 @@ int receive(void *self, local_id from, Message *msg)
             } while (read_flag == -1 || read_flag == 0);
         }
 	//printf("MSG IS: %s; TYPE IS: %d\n", msg->s_payload, msg->s_header.s_type);
+		printf("process %d received msg from %d, type is %d\n", io_channel->id, from, msg->s_header.s_type);
         return 0;
     }
 }
