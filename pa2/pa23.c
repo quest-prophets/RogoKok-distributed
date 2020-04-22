@@ -138,7 +138,5 @@ int main(int argc, char const *argv[])
     log_events_close();
     log_pipes_close();
 
-	printf("id %d finished his work\n", io_channel->id);
-	
     return 0;
 }

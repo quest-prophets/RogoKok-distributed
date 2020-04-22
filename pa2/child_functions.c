@@ -45,6 +45,7 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
                     io_channel->balance_history.s_history_len++;
                     loopbreak = 1;
                 }
+					break;
                 case TRANSFER: {
                     TransferOrder *transfer_order = (TransferOrder *) msg->s_payload;
                     //printf("id - %d, src - %d, dst - %d\n", io_channel->id, transfer_order->s_src, transfer_order->s_dst);
@@ -65,7 +66,9 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
                     }
 		
                 }
+					break;
                 default:
+					//printf("IN TRANSFER_STOP_LOOP %d received type %d\n", io_channel->id,  msg->s_header.s_type);
                     break;
             }
         }
@@ -75,6 +78,7 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
 int send_history(io_channel_t *io_channel)
 {
     Message *history_message = (Message*) malloc(sizeof(Message));
+    history_message->s_header.s_magic = MESSAGE_MAGIC;
     history_message->s_header.s_type = BALANCE_HISTORY;
     history_message->s_header.s_payload_len = io_channel->balance_history.s_history_len * sizeof(BalanceHistory);
     *((BalanceHistory *)history_message->s_payload) = io_channel->balance_history;
@@ -82,7 +86,6 @@ int send_history(io_channel_t *io_channel)
     {
         return 1;
     }
-    puts ("HIST_SENT");
     return 0;
 }
 
