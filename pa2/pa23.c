@@ -116,6 +116,13 @@ int main(int argc, char const *argv[])
         log_received_all_done(io_channel);
         receive_history_from_all(io_channel,&banking_history);
         print_history(&banking_history);        // printing all history
+        
+        // waiting for processes to finish
+        for (uint8_t pid = 1; pid <= io_channel->children_num; pid++)
+            if (!waitpid(processes[pid], NULL, 0))
+            {
+                return 1;
+            }
     }
     else
     {
