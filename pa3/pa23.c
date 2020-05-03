@@ -104,9 +104,6 @@ int main(int argc, char const *argv[])
 
     close_unused_pipes(io_channel);
 
-    Message *started_message = create_message(MESSAGE_MAGIC, STARTED);
-    Message *done_message = create_message(MESSAGE_MAGIC, DONE);
-
     if (io_channel->id == PARENT_ID)
     {
         // parent
@@ -132,13 +129,13 @@ int main(int argc, char const *argv[])
     {
         // child
         balance_init(io_channel, branch_balances[io_channel->id]);  // initial branch balances info
-        send_started(io_channel, started_message);                  // send to all - STARTED
+        send_started(io_channel);                  // send to all - STARTED
         log_started(io_channel);
         receive_from_all_processes(io_channel, 0);                     // receiving all STARTED
         log_received_all_started(io_channel);
         // loop for TRANSFER and STOP waiting and handing
         handle_stop_and_transfer(io_channel, branch_balances[io_channel->id]);
-        send_done(io_channel, done_message);                        // send to all - DONE
+        send_done(io_channel);                        // send to all - DONE
         log_done(io_channel);
         receive_from_all_processes(io_channel, 1);                     // receiving all DONE
         log_received_all_done(io_channel);

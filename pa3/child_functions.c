@@ -10,6 +10,7 @@
 #include "pa2345.h"
 #include "banking.h"
 #include "lamport.h"
+#include "util.h"
 
 void balance_init(io_channel_t *io_channel, balance_t balance)
 {
@@ -107,6 +108,7 @@ int send_history(io_channel_t *io_channel)
     Message *history_message = (Message*) malloc(sizeof(Message));
     history_message->s_header.s_magic = MESSAGE_MAGIC;
     history_message->s_header.s_type = BALANCE_HISTORY;
+    history_message->s_header.s_local_time = get_lamport_time();
     history_message->s_header.s_payload_len = io_channel->balance_history.s_history_len * sizeof(BalanceHistory);
     *((BalanceHistory *)history_message->s_payload) = io_channel->balance_history;
     if (!send(io_channel, PARENT_ID, history_message))
@@ -116,9 +118,10 @@ int send_history(io_channel_t *io_channel)
     return 0;
 }
 
-int send_started(io_channel_t *io_channel, Message *started_message)
+int send_started(io_channel_t *io_channel)
 {
     inc_lamport_time();
+    Message *started_message = create_timed_message(MESSAGE_MAGIC, STARTED, 0, get_lamport_time());
     sprintf(started_message->s_payload, log_started_fmt, get_lamport_time(), io_channel->id, getpid(), getppid(),
             io_channel->balance_history.s_history->s_balance);
     started_message->s_header.s_payload_len = (uint16_t)strlen(started_message->s_payload);
@@ -129,9 +132,10 @@ int send_started(io_channel_t *io_channel, Message *started_message)
     return 0;
 }
 
-int send_done(io_channel_t *io_channel, Message *done_message)
+int send_done(io_channel_t *io_channel)
 {
     inc_lamport_time();
+    Message *done_message = create_timed_message(MESSAGE_MAGIC, DONE, 0, get_lamport_time());
     sprintf(done_message->s_payload, log_done_fmt, get_lamport_time(), io_channel->id,
             io_channel->balance_history.s_history->s_balance);
     done_message->s_header.s_payload_len = (uint16_t)strlen(done_message->s_payload);

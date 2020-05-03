@@ -5,9 +5,9 @@
 #include "pipes_io.h"
 #include "banking.h"
 
-int send_started(io_channel_t* io_channel, Message* started_message);
+int send_started(io_channel_t* io_channel);
 
-int send_done(io_channel_t* io_channel, Message* done_message);
+int send_done(io_channel_t* io_channel);
 
 void balance_init(io_channel_t *io_channel, balance_t balance);
 
