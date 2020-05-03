@@ -6,6 +6,6 @@
 
 void inc_lamport_time();
 
-timestamp_t get_max_lamport_time(timestamp_t another_time);
+void set_max_lamport_time(timestamp_t another_time);
 
 #endif //PA3_LAMPORT_H

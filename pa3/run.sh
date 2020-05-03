@@ -5,5 +5,5 @@ rm pa3
 rm events.log
 rm pipes.log
 make
-./pa3 -p 3 10 20 30
+./pa3 -p 5 10 10 20 20 30 
 

@@ -26,6 +26,7 @@ void transfer(void *parent_data, local_id src, local_id dst,
             .s_src = src, .s_dst = dst, .s_amount = amount};
     send(io_channel, src, msg);
     receive(io_channel, dst, msg);
+    set_max_lamport_time(msg->s_header.s_local_time);
     assert(msg->s_header.s_type == ACK);
 }
 
@@ -105,8 +106,6 @@ int main(int argc, char const *argv[])
 
     Message *started_message = create_message(MESSAGE_MAGIC, STARTED);
     Message *done_message = create_message(MESSAGE_MAGIC, DONE);
-    // TODO: fix that to lamport
-    Message *stop_message = create_timed_message(MESSAGE_MAGIC, STOP, 0, get_physical_time());
 
     if (io_channel->id == PARENT_ID)
     {
@@ -114,6 +113,8 @@ int main(int argc, char const *argv[])
         receive_from_all_processes(io_channel, 0); // receiving all STARTED
         log_received_all_started(io_channel);
         bank_robbery(io_channel, children_num);  // bank robbery
+        inc_lamport_time();
+        Message *stop_message = create_timed_message(MESSAGE_MAGIC, STOP, 0, get_lamport_time());
         send_stop(io_channel, stop_message);    // sending STOP to all
         receive_from_all_processes(io_channel, 1); // receiving all DONE
         log_received_all_done(io_channel);

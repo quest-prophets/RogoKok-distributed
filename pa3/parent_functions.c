@@ -13,7 +13,6 @@
 int send_stop(io_channel_t* io_channel, Message* stop_message)
 {
     stop_message->s_header.s_payload_len = (uint16_t) strlen(stop_message->s_payload);
-    inc_lamport_time();
     if (!send_multicast(io_channel, stop_message))
     {
         return 1;
@@ -32,6 +31,7 @@ int receive_history_from_all(io_channel_t* io_channel, AllHistory* banking_histo
 		        fprintf(stderr, "no BALANCE_HISTORY received\n");
                 return 3;
             }
+            set_max_lamport_time(msg->s_header.s_local_time);
             BalanceHistory* balance_history = (BalanceHistory*) msg->s_payload;
             banking_history->s_history[pid-1] = *balance_history;
         }

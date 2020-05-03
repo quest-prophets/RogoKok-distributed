@@ -26,10 +26,14 @@ void balance_init(io_channel_t *io_channel, balance_t balance)
 void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
     Message *msg = (Message*) malloc(sizeof(Message));
     int loopbreak = 0;
-    while (!loopbreak) {
-        if (receive_any(io_channel, msg) == 0) {
-            timestamp_t timestamp = get_max_lamport_time(msg->s_header.s_local_time);
-            for (timestamp_t t = io_channel->balance_history.s_history_len; t < timestamp; t++) {
+    while (!loopbreak) 
+    {
+        if (receive_any(io_channel, msg) == 0) 
+        {
+            set_max_lamport_time(msg->s_header.s_local_time);
+            timestamp_t timestamp = get_lamport_time();
+            for (timestamp_t t = io_channel->balance_history.s_history_len; t < timestamp; t++) 
+            {
                 io_channel->balance_history.s_history[t] = (BalanceState) {
                         .s_balance = balance,
                         .s_time = t,
@@ -37,9 +41,10 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
                 io_channel->balance_history.s_history_len++;
             }
 
-            switch (msg->s_header.s_type) {
-                case STOP: {
-                    //TODO inc time?
+            switch (msg->s_header.s_type)
+             {
+                case STOP: 
+                {
                     io_channel->balance_history.s_history[timestamp] = (BalanceState) {
                             .s_balance = balance,
                             .s_time = timestamp,
@@ -48,12 +53,15 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
                     loopbreak = 1;
                 }
 					break;
-                case TRANSFER: {
+                case TRANSFER:
+                 {
                     TransferOrder *transfer_order = (TransferOrder *) msg->s_payload;
-                    //printf("id - %d, src - %d, dst - %d\n", io_channel->id, transfer_order->s_src, transfer_order->s_dst);
+
                     inc_lamport_time();
                     msg->s_header.s_local_time = get_lamport_time();
-                    if (transfer_order->s_dst == io_channel->id) {
+
+                    if (transfer_order->s_dst == io_channel->id) 
+                    {
                         balance += transfer_order->s_amount;
 
                         log_transfer_in(transfer_order);
@@ -61,10 +69,24 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
                         msg->s_header.s_type = ACK;
                         msg->s_header.s_payload_len = 0;
                         send(io_channel, PARENT_ID, msg);
-                    } else if (transfer_order->s_src == io_channel->id) {
+                    } 
+                    else if (transfer_order->s_src == io_channel->id)
+                     {
                         balance -= transfer_order->s_amount;
 
-                        log_transfer_out(transfer_order);			
+                        io_channel->balance_history.s_history[timestamp] = (BalanceState) {
+                            .s_balance = balance,
+                            .s_time = timestamp,
+                            .s_balance_pending_in = transfer_order->s_amount};
+                        io_channel->balance_history.s_history_len++;
+
+                        log_transfer_out(transfer_order);		
+
+                        io_channel->balance_history.s_history[get_lamport_time()] = (BalanceState) {
+                            .s_balance = balance,
+                            .s_time = get_lamport_time(),
+                            .s_balance_pending_in = transfer_order->s_amount};
+                        io_channel->balance_history.s_history_len++;	
 
                         send(io_channel, transfer_order->s_dst, msg);
                     }

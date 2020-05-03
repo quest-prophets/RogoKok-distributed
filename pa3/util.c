@@ -8,6 +8,7 @@
 #include "ipc.h"
 #include "pipes_io.h"
 #include "pa2345.h"
+#include "lamport.h"
 
 uint8_t parse_arg (const char* arg) {
     char *arg_end;
@@ -44,11 +45,12 @@ Message *create_timed_message(uint16_t magic, int16_t type, uint16_t payload_len
 int receive_from_all_processes(io_channel_t* io_channel, int16_t type)
 {
     for (uint8_t pid = 1; pid <= io_channel->children_num; pid++) {
-        Message message;
+        Message* message = (Message*) malloc(sizeof(Message));
         if (pid != io_channel->id) {
 			while (1) {
-            receive(io_channel, pid, &message);
-            if (message.s_header.s_type==type) 
+            receive(io_channel, pid, message);
+            set_max_lamport_time(message->s_header.s_local_time);
+            if (message->s_header.s_type==type) 
                 break;
         }
 		//if (message.s_header.s_type!=type) printf("BAN - %d received type %d, from %d\n", io_channel->id, message.s_header.s_type, pid);
