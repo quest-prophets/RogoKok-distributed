@@ -13,12 +13,14 @@
 #include "ipc.h"
 #include "log.h"
 #include "banking.h"
+#include "lamport.h"
 
 void transfer(void *parent_data, local_id src, local_id dst,
               balance_t amount)
 {
     io_channel_t *io_channel = (io_channel_t *)parent_data;
-    Message *msg = create_timed_message(MESSAGE_MAGIC, TRANSFER, sizeof(TransferOrder), get_physical_time());
+    inc_lamport_time();
+    Message *msg = create_timed_message(MESSAGE_MAGIC, TRANSFER, sizeof(TransferOrder), get_lamport_time());
     *((TransferOrder *)msg->s_payload) =
         (TransferOrder){
             .s_src = src, .s_dst = dst, .s_amount = amount};
@@ -103,6 +105,7 @@ int main(int argc, char const *argv[])
 
     Message *started_message = create_message(MESSAGE_MAGIC, STARTED);
     Message *done_message = create_message(MESSAGE_MAGIC, DONE);
+    // TODO: fix that to lamport
     Message *stop_message = create_timed_message(MESSAGE_MAGIC, STOP, 0, get_physical_time());
 
     if (io_channel->id == PARENT_ID)

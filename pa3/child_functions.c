@@ -9,6 +9,7 @@
 #include "log.h"
 #include "pa2345.h"
 #include "banking.h"
+#include "lamport.h"
 
 void balance_init(io_channel_t *io_channel, balance_t balance)
 {
@@ -27,7 +28,7 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
     int loopbreak = 0;
     while (!loopbreak) {
         if (receive_any(io_channel, msg) == 0) {
-            timestamp_t timestamp = get_physical_time();
+            timestamp_t timestamp = get_max_lamport_time(msg->s_header.s_local_time);
             for (timestamp_t t = io_channel->balance_history.s_history_len; t < timestamp; t++) {
                 io_channel->balance_history.s_history[t] = (BalanceState) {
                         .s_balance = balance,
@@ -38,6 +39,7 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
 
             switch (msg->s_header.s_type) {
                 case STOP: {
+                    //TODO inc time?
                     io_channel->balance_history.s_history[timestamp] = (BalanceState) {
                             .s_balance = balance,
                             .s_time = timestamp,
@@ -49,6 +51,8 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
                 case TRANSFER: {
                     TransferOrder *transfer_order = (TransferOrder *) msg->s_payload;
                     //printf("id - %d, src - %d, dst - %d\n", io_channel->id, transfer_order->s_src, transfer_order->s_dst);
+                    inc_lamport_time();
+                    msg->s_header.s_local_time = get_lamport_time();
                     if (transfer_order->s_dst == io_channel->id) {
                         balance += transfer_order->s_amount;
 
@@ -77,6 +81,7 @@ void handle_stop_and_transfer(io_channel_t *io_channel, balance_t balance) {
 
 int send_history(io_channel_t *io_channel)
 {
+    inc_lamport_time();
     Message *history_message = (Message*) malloc(sizeof(Message));
     history_message->s_header.s_magic = MESSAGE_MAGIC;
     history_message->s_header.s_type = BALANCE_HISTORY;
@@ -91,7 +96,8 @@ int send_history(io_channel_t *io_channel)
 
 int send_started(io_channel_t *io_channel, Message *started_message)
 {
-    sprintf(started_message->s_payload, log_started_fmt, get_physical_time(), io_channel->id, getpid(), getppid(),
+    inc_lamport_time();
+    sprintf(started_message->s_payload, log_started_fmt, get_lamport_time(), io_channel->id, getpid(), getppid(),
             io_channel->balance_history.s_history->s_balance);
     started_message->s_header.s_payload_len = (uint16_t)strlen(started_message->s_payload);
     if (!send_multicast(io_channel, started_message))
@@ -103,7 +109,8 @@ int send_started(io_channel_t *io_channel, Message *started_message)
 
 int send_done(io_channel_t *io_channel, Message *done_message)
 {
-    sprintf(done_message->s_payload, log_done_fmt, get_physical_time(), io_channel->id,
+    inc_lamport_time();
+    sprintf(done_message->s_payload, log_done_fmt, get_lamport_time(), io_channel->id,
             io_channel->balance_history.s_history->s_balance);
     done_message->s_header.s_payload_len = (uint16_t)strlen(done_message->s_payload);
     if (!send_multicast(io_channel, done_message))

@@ -10,6 +10,7 @@
 #include "common.h"
 #include "pa2345.h"
 #include "pipes_io.h"
+#include "lamport.h"
 
 FILE *events_log_file;
 FILE *pipes_log_file;
@@ -63,7 +64,7 @@ void log_started(io_channel_t* io_channel)
     pid_t pid = getpid();
     pid_t parent_pid = getppid();
     log_printf(log_started_fmt, 
-                get_physical_time(), 
+                get_lamport_time(), 
                 io_channel->id, 
                 pid, 
                 parent_pid, 
@@ -72,29 +73,29 @@ void log_started(io_channel_t* io_channel)
 
 void log_received_all_started(io_channel_t* io_channel)
 {
-    log_printf(log_received_all_started_fmt, get_physical_time(), io_channel->id);
+    log_printf(log_received_all_started_fmt, get_lamport_time(), io_channel->id);
 }
 
 void log_done(io_channel_t* io_channel)
 {
-    log_printf(log_done_fmt, get_physical_time(), io_channel->id, 
+    log_printf(log_done_fmt, get_lamport_time(), io_channel->id, 
                 io_channel->balance_history.s_history[io_channel->balance_history.s_history_len - 1].s_balance);
 }
 
 void log_received_all_done(io_channel_t* io_channel)
 {
-    log_printf(log_received_all_done_fmt, get_physical_time(), io_channel->id);
+    log_printf(log_received_all_done_fmt, get_lamport_time(), io_channel->id);
 }
 
 void log_transfer_in(TransferOrder* transfer_order)
 {
-    log_printf(log_transfer_in_fmt, get_physical_time(), transfer_order->s_dst,
+    log_printf(log_transfer_in_fmt, get_lamport_time(), transfer_order->s_dst,
             transfer_order->s_amount, transfer_order->s_src);
 }
 
 void log_transfer_out(TransferOrder* transfer_order)
 {
-    log_printf(log_transfer_out_fmt, get_physical_time(), transfer_order->s_src,
+    log_printf(log_transfer_out_fmt, get_lamport_time(), transfer_order->s_src,
                transfer_order->s_amount, transfer_order->s_dst);
 }
 

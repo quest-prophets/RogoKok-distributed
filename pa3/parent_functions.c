@@ -8,10 +8,12 @@
 #include "pa2345.h"
 #include "banking.h"
 #include "util.h"
+#include "lamport.h"
 
 int send_stop(io_channel_t* io_channel, Message* stop_message)
 {
     stop_message->s_header.s_payload_len = (uint16_t) strlen(stop_message->s_payload);
+    inc_lamport_time();
     if (!send_multicast(io_channel, stop_message))
     {
         return 1;
