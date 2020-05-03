@@ -109,7 +109,7 @@ int send_history(io_channel_t *io_channel)
     history_message->s_header.s_magic = MESSAGE_MAGIC;
     history_message->s_header.s_type = BALANCE_HISTORY;
     history_message->s_header.s_local_time = get_lamport_time();
-    history_message->s_header.s_payload_len = io_channel->balance_history.s_history_len * sizeof(BalanceHistory);
+    history_message->s_header.s_payload_len = sizeof(BalanceHistory);
     *((BalanceHistory *)history_message->s_payload) = io_channel->balance_history;
     if (!send(io_channel, PARENT_ID, history_message))
     {
