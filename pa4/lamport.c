@@ -31,12 +31,33 @@ void set_max_lamport_time(timestamp_t another_time)
     inc_lamport_time();
 }
 
+// adding cs_request info to local queue
 void add_to_lamport_queue(io_channel_t *io_channel, timestamp_t time, local_id pid) 
 {
-    io_channel->local_queue[io_channel->current_record_num] = (lamport_queue_record_t) 
+    io_channel->local_queue[io_channel->last_record_num] = (lamport_queue_record_t) 
     {
         .request_time = time,
         .pid = pid
     };
-    io_channel->current_record_num++;
+    io_channel->last_record_num++;
+}
+
+// finding the first cs reqeust (with lowest time mark)
+int get_lowest_time_request_num(io_channel_t *io_channel)
+{
+    uint8_t min_time_num = 0;
+    for (uint8_t record_num = 0; record_num < io_channel->last_record_num; record_num++)
+    {
+        if (io_channel->local_queue[record_num].request_time < io_channel->local_queue[min_time_num].request_time)
+        {
+            min_time_num = record_num;
+        } else if (io_channel->local_queue[record_num].request_time == io_channel->local_queue[min_time_num].request_time)
+        {
+            if (io_channel->local_queue[record_num].pid < io_channel->local_queue[min_time_num].pid) 
+            {
+                min_time_num = record_num;
+            }
+        }
+    }
+    return min_time_num;  
 }

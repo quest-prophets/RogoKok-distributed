@@ -23,7 +23,7 @@ typedef struct
     pipe_fd_t io_channels[MAX_PROCESSES_NUM][MAX_PROCESSES_NUM];
     BalanceHistory balance_history;
     lamport_queue_record_t local_queue[MAX_PROCESSES_NUM];
-    uint8_t current_record_num
+    uint8_t last_record_num
 } __attribute__((packed)) io_channel_t;
 
 io_channel_t *create_pipes(uint8_t process_num);

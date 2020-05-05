@@ -100,7 +100,7 @@ int receive_any(void *self, Message *msg)
                     read_flag = read(io_channel->io_channels[from][io_channel->id].read_fd, &msg->s_payload, msg->s_header.s_payload_len);
                 } while (read_flag == -1);
             }
-            return 0;
+            return from;
         }
     }
 }

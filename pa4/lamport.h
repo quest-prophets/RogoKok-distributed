@@ -17,4 +17,6 @@ void set_max_lamport_time(timestamp_t another_time);
 
 void add_to_lamport_queue(io_channel_t *io_channel, timestamp_t time, local_id pid);
 
+int get_lowest_time_request_num(io_channel_t *io_channel);
+
 #endif //PA3_LAMPORT_H
