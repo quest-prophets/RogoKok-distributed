@@ -16,6 +16,12 @@ typedef struct
     int write_fd;
 } __attribute__((packed)) pipe_fd_t;
 
+typedef struct 
+{
+    timestamp_t request_time;
+    local_id pid;
+} __attribute__((packed)) lamport_queue_record_t;
+
 typedef struct
 {
     local_id id;
@@ -23,7 +29,7 @@ typedef struct
     pipe_fd_t io_channels[MAX_PROCESSES_NUM][MAX_PROCESSES_NUM];
     BalanceHistory balance_history;
     lamport_queue_record_t local_queue[MAX_PROCESSES_NUM];
-    uint8_t last_record_num
+    uint8_t last_record_num;
 } __attribute__((packed)) io_channel_t;
 
 io_channel_t *create_pipes(uint8_t process_num);

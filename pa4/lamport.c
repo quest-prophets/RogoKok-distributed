@@ -2,6 +2,7 @@
 #include "ipc.h"
 #include "banking.h"
 #include "pipes_io.h"
+#include "util.h"
 
 timestamp_t lamport_scalar_time = 0;
 
@@ -42,7 +43,7 @@ void add_to_lamport_queue(io_channel_t *io_channel, timestamp_t time, local_id p
     io_channel->last_record_num++;
 }
 
-// finding the first cs reqeust (with lowest time mark)
+// finding the first cs request (with lowest time mark)
 int get_lowest_time_request_num(io_channel_t *io_channel)
 {
     uint8_t min_time_num = 0;
@@ -60,4 +61,12 @@ int get_lowest_time_request_num(io_channel_t *io_channel)
         }
     }
     return min_time_num;  
+}
+
+// deleting top element from local queue удаляем НОЛЕВОЙ элемент
+void pop_from_lamport_queue(io_channel_t *io_channel)
+{
+    int top_element = get_lowest_time_request_num(io_channel);
+    io_channel->local_queue[top_element] = io_channel->local_queue[io_channel->last_record_num-1];
+    io_channel->last_record_num--;
 }
