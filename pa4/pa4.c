@@ -8,7 +8,6 @@
 
 #include "util.h"
 #include "child_functions.h"
-#include "parent_functions.h"
 #include "pipes_io.h"
 #include "ipc.h"
 #include "log.h"

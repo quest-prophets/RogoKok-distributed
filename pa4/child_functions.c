@@ -12,6 +12,8 @@
 #include "lamport.h"
 #include "util.h"
 
+// sending messages
+
 int send_started(io_channel_t *io_channel)
 {
     inc_lamport_time();
@@ -38,4 +40,31 @@ int send_done(io_channel_t *io_channel)
         return 1;
     }
     return 0;
+}
+
+int send_cs_request(io_channel_t *io_channel)
+{
+    inc_lamport_time();
+    Message *cs_request_message = create_timed_message(MESSAGE_MAGIC, CS_REQUEST, 0, get_lamport_time());
+    sprintf(cs_request_message->s_payload, log_done_fmt, get_lamport_time(), io_channel->id,
+            io_channel->balance_history.s_history->s_balance);
+    cs_request_message->s_header.s_payload_len = (uint16_t)strlen(cs_request_message->s_payload);
+    if (!send_multicast(io_channel, cs_request_message))
+    {
+        return 1;
+    }
+    return 0;
+}
+
+// pa4 functions for algorithm 
+
+int request_cs(const void * self)
+{
+    io_channel_t *io_channel = (io_channel_t *)self;
+    
+    send_cs_request(io_channel);
+    add_to_lamport_queue(io_channel, get_lamport_time(), io_channel->id);
+
+    // waiting for responses from other processes
+
 }

@@ -4,8 +4,17 @@
 #include "ipc.h"
 #include "banking.h"
 
+typedef struct 
+{
+    timestamp_t request_time;
+    local_id pid;
+} __attribute__((packed)) lamport_queue_record_t;
+
+
 void inc_lamport_time();
 
 void set_max_lamport_time(timestamp_t another_time);
+
+void add_to_lamport_queue(io_channel_t *io_channel, timestamp_t time, local_id pid);
 
 #endif //PA3_LAMPORT_H
