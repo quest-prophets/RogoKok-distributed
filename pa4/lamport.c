@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "lamport.h"
 #include "ipc.h"
 #include "banking.h"
@@ -61,6 +63,16 @@ int get_lowest_time_request_num(io_channel_t *io_channel)
         }
     }
     return min_time_num;  
+}
+
+// printing the whole queue for debugging
+void lamport_queue_dump(io_channel_t *io_channel)
+{
+    for (uint8_t i = 0; i < io_channel->last_record_num; i++) 
+    {
+        printf("PROCESS %d index %d: pid is %d, time is %d\n", io_channel->id,
+         i, io_channel->local_queue[i].pid, io_channel->local_queue[i].request_time);
+    }
 }
 
 // deleting top element from local queue удаляем НОЛЕВОЙ элемент

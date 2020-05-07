@@ -18,11 +18,12 @@
 int main(int argc, char const *argv[])
 {
 
-     // variables
+    // variables
 
     uint8_t children_num;
     uint8_t sum_process_num;
     uint8_t set_mutexl = 0;
+    uint8_t remain_running_processes = 0;
 
     // input validation
 
@@ -33,15 +34,15 @@ int main(int argc, char const *argv[])
     }
     else
     {
-        if (strcmp(argv[1], "-p") == 0) 
+        if (strcmp(argv[1], "-p") == 0)
         {
             children_num = parse_arg(argv[2]);
         }
-        if (strcmp(argv[2], "-p") == 0) 
+        if (strcmp(argv[2], "-p") == 0)
         {
             children_num = parse_arg(argv[3]);
         }
-        if ((strcmp(argv[1], "--mutexl") == 0) || (strcmp(argv[2], "--mutexl") == 0) || (strcmp(argv[3], "--mutexl") == 0)) 
+        if ((strcmp(argv[1], "--mutexl") == 0) || (strcmp(argv[2], "--mutexl") == 0))
         {
             set_mutexl = 1;
         }
@@ -50,7 +51,7 @@ int main(int argc, char const *argv[])
             fprintf(stderr, "ERROR: maximum children number is %d", MAX_CHILDREN_NUM);
             return 1;
         }
-        sum_process_num = children_num + (uint8_t) 1;
+        sum_process_num = children_num + (uint8_t)1;
     }
 
     // logs init
@@ -93,11 +94,11 @@ int main(int argc, char const *argv[])
     if (io_channel->id == PARENT_ID)
     {
         // parent
-        receive_from_all_processes(io_channel, 0);                      // receiving all STARTED
+        receive_from_all_processes(io_channel, 0); // receiving all STARTED
         log_received_all_started(io_channel);
-        receive_from_all_processes(io_channel, 1);                      // receiving all DONE
+        receive_from_all_processes(io_channel, 1); // receiving all DONE
         log_received_all_done(io_channel);
-        
+
         // waiting for processes to finish
         for (uint8_t pid = 1; pid <= io_channel->children_num; pid++)
             if (!waitpid(processes[pid], NULL, 0))
@@ -108,21 +109,26 @@ int main(int argc, char const *argv[])
     else
     {
         // child
-        send_started(io_channel);                                       // send to all - STARTED
+        send_started(io_channel); // send to all - STARTED
         log_started(io_channel);
-        receive_from_all_processes(io_channel, 0);                      // receiving all STARTED
+        receive_from_all_processes(io_channel, 0); // receiving all STARTED
         log_received_all_started(io_channel);
-        if (set_mutexl) request_cs(io_channel);                         // entering cs
-        do_useful_job(io_channel);                                      // printing
-        if (set_mutexl) release_cs(io_channel);                         // leaving cs
-        send_done(io_channel);                                          // send to all - DONE
+        if (set_mutexl)
+            remain_running_processes = request_cs(io_channel); // entering cs   
+        do_useful_job(io_channel);  // printing
+        if (set_mutexl)
+            release_cs(io_channel); // leaving cs
+        send_done(io_channel);      // send to all - DONE
         log_done(io_channel);
-        receive_from_all_processes(io_channel, 1);                      // receiving all DONE
+        if (!set_mutexl || remain_running_processes > 1)
+            receive_from_all_processes(io_channel, 1);
         log_received_all_done(io_channel);
     }
 
     log_events_close();
     log_pipes_close();
 
+     //printf("P %d ENDED \n",io_channel->id);
+     
     return 0;
 }

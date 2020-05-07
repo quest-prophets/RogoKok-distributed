@@ -5,4 +5,4 @@ rm pa4
 rm events.log
 rm pipes.log
 make
-./pa4 --mutexl -p 5 
+./pa4 --mutexl -p 3 

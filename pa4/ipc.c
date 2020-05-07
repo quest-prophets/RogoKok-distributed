@@ -7,11 +7,11 @@
 
 // const char* msgtype(const Message* msg) 
 // {
-//     static char* MESSAGE_TYPE_STR[] = {"STARTED", "DONE", "ACK", "STOP", "TRANSFER", "BALANCE_HISTORY"};
+//     static char* MESSAGE_TYPE_STR[] = {"STARTED", "DONE", "ACK", "STOP", "TRANSFER", "BALANCE_HISTORY", "CS_REQUEST", "CS_REPLY", "CS_RELEASE"};
 //     static size_t MESSAGE_TYPE_CNT = sizeof(MESSAGE_TYPE_STR) / sizeof(MESSAGE_TYPE_STR[0]);
 //     return msg->s_header.s_type < MESSAGE_TYPE_CNT ? MESSAGE_TYPE_STR[msg->s_header.s_type] : "<unknown>";
 // }
-
+ 
 int send(void *self, local_id dst, const Message *msg)
 {
     io_channel_t *io_channel = (io_channel_t *)self;

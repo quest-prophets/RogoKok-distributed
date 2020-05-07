@@ -85,6 +85,7 @@ int send_cs_reply_to(io_channel_t *io_channel, local_id reply_to)
     return 0;
 }
 
+
 // pa4 functions for algorithm
 
 int request_cs(const void *self)
@@ -98,10 +99,16 @@ int request_cs(const void *self)
 
     Message *msg = (Message *)malloc(sizeof(Message));
     uint8_t processes_we_wait_for_reply = io_channel->children_num - 1; //children except for current
+    uint8_t processes_still_running = io_channel->children_num - 1;
 
-    while (processes_we_wait_for_reply) //|| (io_channel->local_queue[get_lowest_time_request_num(io_channel)].pid != io_channel->id))
+    while ((processes_we_wait_for_reply) || (io_channel->local_queue[get_lowest_time_request_num(io_channel)].pid != io_channel->id))
     {
+        //lamport_queue_dump(io_channel);
+        //printf("PROC %d STILL REMAIN %d\n",io_channel->id, processes_we_wait_for_reply);
+
         local_id msg_from = receive_any(io_channel, msg);
+        sleep(1);
+        timestamp_t request_received = msg->s_header.s_local_time;
         set_max_lamport_time(msg->s_header.s_local_time);
         switch (msg->s_header.s_type)
         {
@@ -111,21 +118,23 @@ int request_cs(const void *self)
             break;
         case CS_REQUEST:
             // another process wants cs, so add it to our local queue
-            add_to_lamport_queue(io_channel, get_lamport_time(), msg_from);
+            add_to_lamport_queue(io_channel, request_received, msg_from);
             // send him reply that we successfully received the message and added to queue
             send_cs_reply_to(io_channel, msg_from);
             break;
         case CS_RELEASE:
             // another process leaving cs, so deleting his request from local queue
             pop_from_lamport_queue(io_channel);
+            break;
+        case DONE:
+            // process finished, don't care anymore
+            processes_still_running -= 1;    
         default:
-            puts("DEFAULT");
             break;
         }
     }
 
-    puts("all finished");
-    return 0;
+    return processes_still_running;
 }
 
 int release_cs(const void *self)
