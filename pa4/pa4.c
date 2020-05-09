@@ -115,20 +115,25 @@ int main(int argc, char const *argv[])
         log_received_all_started(io_channel);
         if (set_mutexl)
             remain_running_processes = request_cs(io_channel); // entering cs   
+        else
+            remain_running_processes = io_channel->children_num - 1;
         do_useful_job(io_channel);  // printing
         if (set_mutexl)
             release_cs(io_channel); // leaving cs
         send_done(io_channel);      // send to all - DONE
+
+        wait_for_done(io_channel, remain_running_processes);
         log_done(io_channel);
-        if (!set_mutexl || remain_running_processes > 1)
-            receive_from_all_processes(io_channel, 1);
+        /* if (!set_mutexl || remain_running_processes > 1)
+            receive_from_all_processes(io_channel, 1); */
         log_received_all_done(io_channel);
     }
 
     log_events_close();
     log_pipes_close();
 
-     //printf("P %d ENDED \n",io_channel->id);
+    //printf("P %d ENDED \n", io_channel->id);
+    sleep(1);
      
     return 0;
 }

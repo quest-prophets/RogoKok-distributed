@@ -11,6 +11,8 @@ int send_done(io_channel_t* io_channel);
 
 void do_useful_job(io_channel_t *io_channel);
 
+void wait_for_done(io_channel_t* io_channel, int remaining_processes);
+
 int send_cs_request(io_channel_t *io_channel);
 
 int send_cs_release(io_channel_t *io_channel);

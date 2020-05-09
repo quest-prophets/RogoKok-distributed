@@ -107,7 +107,6 @@ int request_cs(const void *self)
         //printf("PROC %d STILL REMAIN %d\n",io_channel->id, processes_we_wait_for_reply);
 
         local_id msg_from = receive_any(io_channel, msg);
-        sleep(1);
         timestamp_t request_received = msg->s_header.s_local_time;
         set_max_lamport_time(msg->s_header.s_local_time);
         switch (msg->s_header.s_type)
@@ -135,6 +134,33 @@ int request_cs(const void *self)
     }
 
     return processes_still_running;
+}
+
+void wait_for_done(io_channel_t* io_channel, int remaining_processes) 
+{
+    // waiting for responses from other processes
+
+    Message *msg = (Message *)malloc(sizeof(Message));
+
+    while (remaining_processes > 0)
+    {
+        local_id msg_from = receive_any(io_channel, msg);
+        timestamp_t request_received = msg->s_header.s_local_time;
+        set_max_lamport_time(msg->s_header.s_local_time);
+        switch (msg->s_header.s_type)
+        {
+        case CS_REQUEST:
+            add_to_lamport_queue(io_channel, request_received, msg_from);
+            send_cs_reply_to(io_channel, msg_from);
+            break;
+        case CS_RELEASE:
+            pop_from_lamport_queue(io_channel);
+            break;
+        case DONE:
+            remaining_processes--;
+            break;
+        }
+    }
 }
 
 int release_cs(const void *self)
